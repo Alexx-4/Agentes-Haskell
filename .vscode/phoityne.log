@@ -1,0 +1,3 @@
+2022-01-20 10:59:50.947007200000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <d:\MATCOM\4to Año\my files\2do semestre\Simulacion\proyecto agentes\agentes-haskell\Random.hs> [])
+2022-01-20 10:59:51.364949400000 [$pid(ThreadId 5)] ERROR APP - start debugging failed. user error (ExecResult not found.) : Left "user error (ExecResult not found.)"
+2022-01-20 10:59:55.933380600000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <d:\MATCOM\4to Año\my files\2do semestre\Simulacion\proyecto agentes\agentes-haskell\Random.hs> [])
