@@ -5,7 +5,9 @@ module Objects
     createObject,
     moveObject,
     getPosObjects,
-    createPlaypen
+    createPlaypen,
+    moveObstacles,
+    moveChild
 ) 
 where
 
@@ -17,7 +19,7 @@ data Object = Object { name :: String,
                      } deriving Show
 
 -- guarda un posicion x,y determinada
-data Location = Location Int Int deriving Show
+data Location = Location {row::Int, column::Int} deriving Show
 
 -- crea un objeto dados su nombre y ubicacion
 createObject :: String -> (Int,Int) -> Object
@@ -39,3 +41,29 @@ getPosObjects ((Object name (Location x y)):xs) = (x,y):getPosObjects xs
 createPlaypen :: Int -> [(Int,Int)] -> [(Int, Int)]
 createPlaypen 0 _ = []
 createPlaypen n (x:xs) = x : createPlaypen (n - 1) xs
+
+-- dado un objeto que representa un ninno, una direccion, modifica la lista 
+-- de ninnos, cambiando la posicion del objeto en la direccion indicada
+moveChild :: Object -> Int -> Int -> [Object] -> [Object]
+moveChild child dx dy [] = []
+moveChild child@(Object _ (Location x y)) dx dy (currentChild@(Object _ (Location currentx currenty)):xs) =
+                                if currentx == x && currenty == y
+                                then (moveObject child dx dy): moveChild child dx dy xs
+                                else currentChild: moveChild child dx dy xs
+
+
+-- mueve los obstaculos consecutivos a partir de la posicion indicada en la direccion que
+-- recibe como parametro.
+moveObstacles :: Int -> Int -> Int -> Int -> [Object] -> [(Int,Int)] -> Int -> Int -> [Object]
+moveObstacles x y currentx currenty obstList freePos dx dy
+            | elem (x,y) freePos = updateObst x y currentx currenty obstList
+            | otherwise = moveObstacles (x+dx) (y+dy) currentx currenty obstList freePos dx dy
+    
+
+-- actualiza un obstaculo con la nueva posicion (x,y)
+updateObst :: Int -> Int -> Int -> Int -> [Object] -> [Object]
+updateObst _ _ _ _ [] = []
+updateObst x y currentx currenty (obst@(Object name (Location lx ly)):xs) = 
+                                if lx == currentx && ly == currenty
+                                then (Object "obstacle" (Location x y)): updateObst x y currentx currenty xs
+                                else obst: updateObst x y currentx currenty xs

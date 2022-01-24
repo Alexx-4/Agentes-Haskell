@@ -96,8 +96,6 @@ createEnvironment = do
         let aux = updatePos (getPosObjects dirtyList) freePos
         let freePos = aux
 
-        let a = "ale"
-
         print playpen
         print agentList
         print childList
@@ -105,17 +103,29 @@ createEnvironment = do
         print obstList
         print freePos
 
+        g1 <- newStdGen
+        g2 <- newStdGen
+        let (newChildList, newDirtyList, newObstList, newFreePos) =
+                changeEnvironment childList dirtyList obstList freePos n m 0 g1 g2
+        
+        let childList = newChildList
+        let dirtyList = newDirtyList
+        let obstList = newObstList
+        let freePos = newFreePos
 
-        changeEnvironment a
+        print playpen
+        print agentList
+        print childList
+        print dirtyList
+        print obstList
+        print freePos
         
 
 
 
        
-        putStrLn a
+
         putStrLn("Simulación terminada")
 
-changeEnvironment :: String -> IO()
-changeEnvironment a = do
-                let a = "ALE"
-                putStrLn a
+
+

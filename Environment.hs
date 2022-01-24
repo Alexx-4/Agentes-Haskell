@@ -3,7 +3,8 @@ module Environment
     createPos,
     locateObjects,
     updatePos,
-    isValidPos
+    isValidPos,
+    changeEnvironment
 ) 
 where
 
@@ -49,10 +50,11 @@ isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
 
 -- devuelve una direccion aleatoria
 -- recibe dos generadores
-randomDir :: StdGen -> StdGen -> (Int,Int)
-randomDir genx geny = (dirx !! xi ,diry !! yi)
-                where xi = (rand 1 (0,3) genx) !! 0
-                      yi = (rand 1 (0,3) geny) !! 0
+randomDir :: StdGen -> StdGen -> (Int,StdGen,Int,StdGen)
+randomDir genx geny = (dirx !! xi , newGenx, diry !! yi, newGeny)
+                where (xi,newGenx) = randomR (0,3) genx
+                      (yi, newGeny) = randomR (0,3) geny
+                      
 
 
 -- verifica si un ninno puede moverse en la direccion indicada,
@@ -65,4 +67,37 @@ canChildMove x y n m (dx,dy) freePos obstList
             | otherwise = False
 
 
+-- simula el comportamiento de cambio del ambiente, donde los ninnos se mueven (o no) aleatoriamente,
+-- pueden mover obstaculos y ensuciar.
+-- recibe los objetos que representan el ambiente y los modifica segun el cambio aleatorio
+changeEnvironment :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> Int -> Int -> Int -> StdGen -> StdGen -> ([Object],[Object],[Object],[(Int,Int)])
+changeEnvironment childList dirtyList obstList freePos n m i genx geny
+        | i == length childList = (childList, dirtyList, obstList, freePos)
+        |otherwise = 
+            let 
+                child = childList !! i
+                (dx, newGenx, dy, newGeny) = randomDir genx geny
+                x = row $ location child
+                y = column $ location child
 
+                canMove = canChildMove (x+dx) (y+dy) n m (dx,dy) freePos obstList
+
+                newChildList = if canMove
+                               then moveChild child dx dy childList
+                               else childList
+
+                newObstList = if canMove
+                          then moveObstacles (x+dx) (y+dy) (x+dx) (y+dy) obstList freePos dx dy
+                          else obstList
+
+                newDirtyList = if canMove
+                               then [] --dirtChild
+                               else [] --dirtyList
+
+                newfreePos = if canMove
+                    -- agregar (x,y) a freePos y eliminar newx newy en la direccion d hasta q encuentre una casilla vacia
+                             then updatePos freePos
+                             else freePos
+            
+            in
+                changeEnvironment newChildList newDirtyList newObstList newfreePos n m (i+1) newGenx newGeny
