@@ -16,10 +16,26 @@ where
 -- ademas de la posicion donde se encuentra en el ambiente
 data Object = Object { name :: String, 
                        location :: Location
-                     } deriving Show
+                     } deriving (Show,Eq)
 
 -- guarda un posicion x,y determinada
-data Location = Location {row::Int, column::Int} deriving Show
+data Location = Location {row::Int, column::Int} deriving (Show,Eq)
+
+
+instance Ord Object where
+    (<) (Object _ (Location x1 y1)) (Object _ (Location x2 y2))
+        |x1 < x2 = True
+        |x1 == x2 = y1 < y2
+        |otherwise = False
+
+    (<=)(Object _ (Location x1 y1)) (Object _ (Location x2 y2))
+        |x1 < x2 = True
+        |x1 == x2 = y1 <= y2
+        |otherwise = False
+
+    (>) o1 o2 = not (o1 <= o2) 
+    (>=) o1 o2 = not (o1 < o2)
+
 
 -- crea un objeto dados su nombre y ubicacion
 createObject :: String -> (Int,Int) -> Object
@@ -67,3 +83,5 @@ updateObst x y currentx currenty (obst@(Object name (Location lx ly)):xs) =
                                 if lx == currentx && ly == currenty
                                 then (Object "obstacle" (Location x y)): updateObst x y currentx currenty xs
                                 else obst: updateObst x y currentx currenty xs
+
+

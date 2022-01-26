@@ -3,7 +3,7 @@ import System.Random
 import Control.Exception
 
 import Environment
-import Random
+import Functions
 import Objects
 
 
@@ -63,62 +63,59 @@ createEnvironment = do
         let freePos = createPos n m
 
         -- ubicando corral
-        let playpen = createPlaypen child freePos
+        gen <- newStdGen
+        let playpenPos = createPlaypen child freePos
+        let playpen = locateObjects "Playpen" child playpenPos gen
 
-        let aux = updatePos playpen freePos
+        let aux = updatePos playpenPos freePos
         let freePos = aux 
+        
+        print playpen
 
         -- ubicando agentes
         gen <- newStdGen
-        let agentList = locateObjects "robot" ag freePos gen
+        let agentList = locateObjects "Robot" ag freePos gen
         
         let aux = updatePos (getPosObjects agentList) freePos
         let freePos = aux
         
         -- ubicando obstaculos
         gen <- newStdGen
-        let obstList = locateObjects "obstacle" obst freePos gen
+        let obstList = locateObjects "Obstacle" obst freePos gen
         
         let aux = updatePos (getPosObjects obstList) freePos
         let freePos = aux
 
         -- ubicando ninnos
         gen <- newStdGen
-        let childList = locateObjects "child" child freePos gen
+        let childList = locateObjects "Child" child freePos gen
         
         let aux = updatePos (getPosObjects childList) freePos
         let freePos = aux
 
         -- ubicando suciedad
         gen <- newStdGen
-        let dirtyList = locateObjects "dirty" dirty freePos gen
+        let dirtyList = locateObjects "Dirty" dirty freePos gen
         
         let aux = updatePos (getPosObjects dirtyList) freePos
         let freePos = aux
 
-        print playpen
-        print agentList
-        print childList
-        print dirtyList
-        print obstList
-        print freePos
 
-        g1 <- newStdGen
-        g2 <- newStdGen
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+        
+        
+
+        gen <- newStdGen
         let (newChildList, newDirtyList, newObstList, newFreePos) =
-                changeEnvironment childList dirtyList obstList freePos n m 0 g1 g2
+                changeEnvironment childList dirtyList obstList freePos n m 0 gen
         
         let childList = newChildList
-        let dirtyList = newDirtyList
+        --let dirtyList = newDirtyList
         let obstList = newObstList
         let freePos = newFreePos
 
-        print playpen
-        print agentList
-        print childList
-        print dirtyList
-        print obstList
-        print freePos
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
         
 
 

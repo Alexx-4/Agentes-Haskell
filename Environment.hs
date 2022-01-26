@@ -4,12 +4,13 @@ module Environment
     locateObjects,
     updatePos,
     isValidPos,
-    changeEnvironment
+   changeEnvironment
 ) 
 where
 
 import Objects
-import Random
+import Functions
+
 import System.Random
 
 
@@ -49,14 +50,10 @@ isValidPos :: Int -> Int -> Int -> Int -> Bool
 isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
 
 -- devuelve una direccion aleatoria
--- recibe dos generadores
-randomDir :: StdGen -> StdGen -> (Int,StdGen,Int,StdGen)
-randomDir genx geny = (dirx !! xi , newGenx, diry !! yi, newGeny)
-                where (xi,newGenx) = randomR (0,3) genx
-                      (yi, newGeny) = randomR (0,3) geny
+randomDir :: StdGen -> (Int,Int,StdGen)
+randomDir gen = (dirx !! i, diry !! i, newGen)
+                where (i,newGen) = randomR (0,3) gen
                       
-
-
 -- verifica si un ninno puede moverse en la direccion indicada,
 -- en caso que hayan obstaculos en esa direccion, verifica si puede moverlos
 canChildMove :: Int -> Int -> Int -> Int -> (Int,Int) -> [(Int,Int)] -> [Object] -> Bool
@@ -70,13 +67,13 @@ canChildMove x y n m (dx,dy) freePos obstList
 -- simula el comportamiento de cambio del ambiente, donde los ninnos se mueven (o no) aleatoriamente,
 -- pueden mover obstaculos y ensuciar.
 -- recibe los objetos que representan el ambiente y los modifica segun el cambio aleatorio
-changeEnvironment :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> Int -> Int -> Int -> StdGen -> StdGen -> ([Object],[Object],[Object],[(Int,Int)])
-changeEnvironment childList dirtyList obstList freePos n m i genx geny
+changeEnvironment :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> Int -> Int -> Int -> StdGen -> ([Object],[Object],[Object],[(Int,Int)])
+changeEnvironment childList dirtyList obstList freePos n m i gen
         | i == length childList = (childList, dirtyList, obstList, freePos)
         |otherwise = 
             let 
                 child = childList !! i
-                (dx, newGenx, dy, newGeny) = randomDir genx geny
+                (dx, dy, newGen) = randomDir gen
                 x = row $ location child
                 y = column $ location child
 
@@ -87,17 +84,21 @@ changeEnvironment childList dirtyList obstList freePos n m i genx geny
                                else childList
 
                 newObstList = if canMove
-                          then moveObstacles (x+dx) (y+dy) (x+dx) (y+dy) obstList freePos dx dy
-                          else obstList
+                              then moveObstacles (x+dx) (y+dy) (x+dx) (y+dy) obstList freePos dx dy
+                              else obstList
 
                 newDirtyList = if canMove
                                then [] --dirtChild
                                else [] --dirtyList
 
                 newfreePos = if canMove
-                    -- agregar (x,y) a freePos y eliminar newx newy en la direccion d hasta q encuentre una casilla vacia
-                             then updatePos freePos
+                             then updateFreePos x y (x+dx) (y+dy) dx dy freePos
                              else freePos
             
             in
-                changeEnvironment newChildList newDirtyList newObstList newfreePos n m (i+1) newGenx newGeny
+                changeEnvironment newChildList newDirtyList newObstList newfreePos n m (i+1) newGen
+        
+updateFreePos :: Int -> Int -> Int -> Int -> Int -> Int -> [(Int,Int)] -> [(Int,Int)]
+updateFreePos x y newx newy dx dy freePos = if elem (newx,newy) freePos 
+                                  then (x,y):(updatePos [(newx,newy)] freePos)
+                                  else updateFreePos x y (newx + dx) (newy + dy) dx dy freePos
