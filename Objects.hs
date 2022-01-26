@@ -81,7 +81,7 @@ updateObst :: Int -> Int -> Int -> Int -> [Object] -> [Object]
 updateObst _ _ _ _ [] = []
 updateObst x y currentx currenty (obst@(Object name (Location lx ly)):xs) = 
                                 if lx == currentx && ly == currenty
-                                then (Object "obstacle" (Location x y)): updateObst x y currentx currenty xs
+                                then (Object "Obstacle" (Location x y)): updateObst x y currentx currenty xs
                                 else obst: updateObst x y currentx currenty xs
 
 
