@@ -18,6 +18,7 @@ data Object = Object { name :: String,
                        location :: Location
                      } deriving (Show,Eq)
 
+
 -- guarda un posicion x,y determinada
 data Location = Location {row::Int, column::Int} deriving (Show,Eq)
 
@@ -41,10 +42,12 @@ instance Ord Object where
 createObject :: String -> (Int,Int) -> Object
 createObject name (x,y) = Object name $ Location x y
 
+
 -- recibe un objeto y una direccion d = d1,d2
 -- devuelve el objeto desplazado en la direccion d
 moveObject :: Object -> Int -> Int -> Object
 moveObject (Object name (Location x y)) d1 d2 = Object name $ Location (x + d1) (y + d2)
+
 
 -- recibe una lista de objetos y deluelve otra lista con todas las posiciones que
 -- estos ocupan
@@ -52,11 +55,13 @@ getPosObjects :: [Object] -> [(Int,Int)]
 getPosObjects [] = []
 getPosObjects ((Object name (Location x y)):xs) = (x,y):getPosObjects xs
 
+
 -- el corral se representa como una lista de casillas,
 -- esta funcion crea el corral dado un numero n y una lista de casillas vacias
 createPlaypen :: Int -> [(Int,Int)] -> [(Int, Int)]
 createPlaypen 0 _ = []
 createPlaypen n (x:xs) = x : createPlaypen (n - 1) xs
+
 
 -- dado un objeto que representa un ninno, una direccion, modifica la lista 
 -- de ninnos, cambiando la posicion del objeto en la direccion indicada
@@ -83,5 +88,3 @@ updateObst x y currentx currenty (obst@(Object name (Location lx ly)):xs) =
                                 if lx == currentx && ly == currenty
                                 then (Object "Obstacle" (Location x y)): updateObst x y currentx currenty xs
                                 else obst: updateObst x y currentx currenty xs
-
-

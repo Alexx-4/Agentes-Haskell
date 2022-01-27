@@ -7,7 +7,7 @@ import Functions
 import Objects
 
 
--- Presentacion
+{-- Presentacion
 main = do
         putStrLn ("Presentación here")
         beginSimulation
@@ -30,7 +30,9 @@ handler e = do
 -- cada tipo que contendra. Recibe tambien cada que tiempo t cambia el ambiente.
 -- Si los parametros de entrada no son consistentes se genera una excepcion.
 createEnvironment :: IO ()
-createEnvironment = do
+createEnvironment = -}
+
+main =  do
         putStrLn ("Ingrese dimensiones separadas por espacio de la forma: filas columnas \n >>")
         dimentions <- getLine
         let dimentionsList = words dimentions
@@ -69,8 +71,6 @@ createEnvironment = do
 
         let aux = updatePos playpenPos freePos
         let freePos = aux 
-        
-        print playpen
 
         -- ubicando agentes
         gen <- newStdGen
@@ -110,7 +110,7 @@ createEnvironment = do
                 changeEnvironment childList dirtyList obstList freePos n m 0 gen
         
         let childList = newChildList
-        --let dirtyList = newDirtyList
+        let dirtyList = newDirtyList
         let obstList = newObstList
         let freePos = newFreePos
 
@@ -122,7 +122,6 @@ createEnvironment = do
 
        
 
-        putStrLn("Simulación terminada")
 
 
 

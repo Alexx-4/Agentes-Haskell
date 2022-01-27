@@ -15,6 +15,9 @@ import Data.List
 rand :: Int -> (Int, Int) -> StdGen -> [Int]
 rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
 
+
+--                               >>Para pintar el ambiente<<
+-- ###############################################################################################
 --recibe listas y devuelve la concatenacion de todas
 joinList :: [Object] -> [Object] -> [Object] -> [Object] -> [Object] -> [Object] -> [Object]
 joinList a b c d e f = sort (a ++ b ++ c ++ d ++ e ++ f)
@@ -62,6 +65,7 @@ getFreePosAsObject :: [(Int,Int)] -> [Object]
 getFreePosAsObject [] = []
 getFreePosAsObject ((x,y):xs) = (Object " " (Location x y)) :  getFreePosAsObject xs
 
+
 -- metodo principal para pintar el tablero
 mainPrintEnvironment :: [Object] -> [Object] -> [Object] -> [Object] -> [Object] -> [(Int,Int)] -> Int -> Int -> IO ()
 mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m = do
@@ -80,3 +84,5 @@ fixIndex s = if length s == 1 then " " ++ s ++ " " else if length s == 2 then s 
 -- annade indices al ambiente
 envWithIndex [] _ = []
 envWithIndex (l:ls) i = ([fixIndex (show i)] ++ l): envWithIndex ls (i+1)
+
+-- #####################################################################################################
