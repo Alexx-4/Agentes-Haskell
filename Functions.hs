@@ -1,7 +1,8 @@
 module Functions
 (
     rand,
-    mainPrintEnvironment
+    mainPrintEnvironment,
+    getFreePosAsObject
 ) 
 where
     
@@ -86,3 +87,4 @@ envWithIndex [] _ = []
 envWithIndex (l:ls) i = ([fixIndex (show i)] ++ l): envWithIndex ls (i+1)
 
 -- #####################################################################################################
+

@@ -7,7 +7,8 @@ module Objects
     getPosObjects,
     createPlaypen,
     moveObstacles,
-    moveChild
+    moveChild,
+    posToObject
 ) 
 where
 
@@ -55,6 +56,17 @@ getPosObjects :: [Object] -> [(Int,Int)]
 getPosObjects [] = []
 getPosObjects ((Object name (Location x y)):xs) = (x,y):getPosObjects xs
 
+
+-- devuelve una lista de objetos basado en una lista de posiciones
+posToObject :: [Object] -> [(Int,Int)] -> [Object]
+posToObject _ [] = []
+posToObject objList ((x,y):ys) = getObject objList (x,y) ++ posToObject objList ys
+                            where
+                                getObject :: [Object] -> (Int,Int) -> [Object]
+                                getObject [] _ = [] 
+                                getObject (obj@(Object _ (Location ox oy)):xs) (x,y) =  if x == ox && y == oy 
+                                                                                        then [obj] 
+                                                                                        else getObject xs (x,y)
 
 -- el corral se representa como una lista de casillas,
 -- esta funcion crea el corral dado un numero n y una lista de casillas vacias

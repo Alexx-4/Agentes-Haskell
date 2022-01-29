@@ -33,33 +33,40 @@ createEnvironment :: IO ()
 createEnvironment = -}
 
 main =  do
-        putStrLn ("Ingrese dimensiones separadas por espacio de la forma: filas columnas \n >>")
-        dimentions <- getLine
-        let dimentionsList = words dimentions
-        let n = read (dimentionsList !! 0) :: Int
-        let m = read (dimentionsList !! 1) :: Int
+        -- putStrLn ("Ingrese dimensiones separadas por espacio de la forma: filas columnas \n >>")
+        -- dimentions <- getLine
+        -- let dimentionsList = words dimentions
+        -- let n = read (dimentionsList !! 0) :: Int
+        -- let m = read (dimentionsList !! 1) :: Int
+        let n = 6
+        let m = 6
 
         let totalPos = n*m
 
-        putStrLn ("Ingrese número de robots \n >>")
-        agNumber <- getLine
-        let ag = read agNumber :: Int
+        -- putStrLn ("Ingrese número de robots \n >>")
+        -- agNumber <- getLine
+        -- let ag = read agNumber :: Int
+        let ag = 2
 
-        putStrLn ("Ingrese número de niños \n >>")
-        childNumber <- getLine
-        let child = read childNumber :: Int
+        -- putStrLn ("Ingrese número de niños \n >>")
+        -- childNumber <- getLine
+        -- let child = read childNumber :: Int
+        let child = 3
 
-        putStrLn ("Ingrese número de casillas sucias \n >>")
-        dirtyNumber <- getLine
-        let dirty = read dirtyNumber :: Int
+        -- putStrLn ("Ingrese número de casillas sucias \n >>")
+        -- dirtyNumber <- getLine
+        -- let dirty = read dirtyNumber :: Int
+        let dirty = 4
 
-        putStrLn ("Ingrese número de obstáculos \n >>")
-        obstNumber <- getLine
-        let obst = read obstNumber :: Int
+        -- putStrLn ("Ingrese número de obstáculos \n >>")
+        -- obstNumber <- getLine
+        -- let obst = read obstNumber :: Int
+        let obst = 7
 
-        putStrLn ("Ingrese cada qué tiempo cambia el ambiente \n >>")
-        time <- getLine
-        let t = read time :: Int
+        -- putStrLn ("Ingrese cada qué tiempo cambia el ambiente \n >>")
+        -- time <- getLine
+        -- let t = read time :: Int
+        let time = 0
 
 
         let freePos = createPos n m
@@ -102,10 +109,17 @@ main =  do
 
 
         mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        print freePos
+        print dirtyList
+        print childList
+        print playpen
+        print obstList
+        print agentList
         
         
 
-        gen <- newStdGen
+        {-gen <- newStdGen
         let (newChildList, newDirtyList, newObstList, newFreePos) =
                 changeEnvironment childList dirtyList obstList freePos n m 0 gen
         
@@ -114,7 +128,7 @@ main =  do
         let obstList = newObstList
         let freePos = newFreePos
 
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m-}
 
         
 

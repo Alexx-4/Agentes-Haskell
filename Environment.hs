@@ -4,7 +4,9 @@ module Environment
     locateObjects,
     updatePos,
     isValidPos,
-   changeEnvironment
+   changeEnvironment,
+   dirx,
+   diry
 ) 
 where
 
