@@ -8,7 +8,9 @@ module Objects
     createPlaypen,
     moveObstacles,
     moveChild,
-    posToObject
+    posToObject,
+    updateObj,
+    getObj
 ) 
 where
 
@@ -89,14 +91,22 @@ moveChild child@(Object _ (Location x y)) dx dy (currentChild@(Object _ (Locatio
 -- recibe como parametro.
 moveObstacles :: Int -> Int -> Int -> Int -> [Object] -> [(Int,Int)] -> Int -> Int -> [Object]
 moveObstacles x y currentx currenty obstList freePos dx dy
-            | elem (x,y) freePos = updateObst x y currentx currenty obstList
+            | elem (x,y) freePos = updateObj (x,y) (currentx,currenty) obstList "Obstacle"
             | otherwise = moveObstacles (x+dx) (y+dy) currentx currenty obstList freePos dx dy
     
 
--- actualiza un obstaculo con la nueva posicion (x,y)
-updateObst :: Int -> Int -> Int -> Int -> [Object] -> [Object]
-updateObst _ _ _ _ [] = []
-updateObst x y currentx currenty (obst@(Object name (Location lx ly)):xs) = 
+-- actualiza un objeto con la nueva posicion (x,y)
+-- recibe como parametros la nueva posicion, la antigua posicion y la lista de objetos a actualizar
+updateObj :: (Int,Int) -> (Int,Int) -> [Object] -> String -> [Object]
+updateObj _ _ [] _ = []
+updateObj (x,y) (currentx,currenty) (obj@(Object _ (Location lx ly)):xs) name = 
                                 if lx == currentx && ly == currenty
-                                then (Object "Obstacle" (Location x y)): updateObst x y currentx currenty xs
-                                else obst: updateObst x y currentx currenty xs
+                                then (Object name (Location x y)): updateObj (x,y) (currentx,currenty) xs name
+                                else obj: updateObj (x,y) (currentx,currenty) xs name
+
+
+-- devuelve el primer objeto que coincide con la posicion indicada
+getObj :: (Int,Int) -> [Object] -> Object
+getObj _ [] = Object "null" (Location (-1) (-1))
+getObj (x,y) (obj@(Object _ (Location ox oy)):xs) =
+    if ox == x && oy == y then obj else getObj (x,y) xs

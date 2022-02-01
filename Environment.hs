@@ -14,6 +14,7 @@ import Objects
 import Functions
 
 import System.Random
+import Data.List
 
 
 -- direcciones posibles de casillas adyacentes
@@ -66,16 +67,19 @@ randomDir gen = (dirx !! i, diry !! i, newGen)
 
 
 -- verifica si un ninno puede moverse en la direccion indicada,
--- en caso que hayan obstaculos en esa direccion, verifica si puede moverlos
-canChildMove :: Int -> Int -> Int -> Int -> (Int,Int) -> [(Int,Int)] -> [Object] -> Bool
-canChildMove x y n m (dx,dy) freePos obstList 
+-- en caso que hayan obstaculos en esa direccion, verifica si puede moverlos. Un ninno no puede moverse si esta en 
+-- un corral o lo carga un robot.
+canChildMove :: Object -> Int -> Int -> Int -> Int -> (Int,Int) -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> Bool
+canChildMove child@(Object _ (Location cx cy)) x y n m (dx,dy) freePos obstList robotList playpen
+            | elem (cx,cy) (getPosObjects playpen) = False
+            | elem (cx,cy) (getPosObjects robotList) && name (getObj (cx,cy) robotList) == "Robot charging" = False 
             | not $ isValidPos x y n m = False
             | elem (x,y) freePos = True
-            | elem (x,y) (getPosObjects obstList) = canChildMove (x+dx) (y+dy) n m (dx,dy) freePos obstList
+            | elem (x,y) (getPosObjects obstList) = canChildMove child (x+dx) (y+dy) n m (dx,dy) freePos obstList robotList playpen
             | otherwise = False
 
 
--- annade la posicion del objeto que se acaba de mover (ahora la casiila esta libre)
+-- annade la posicion del objeto que se acaba de mover (ahora la casilla esta libre)
 -- y elimina la posicion a la q el objeto se movio
 updateFreePos :: Int -> Int -> Int -> Int -> Int -> Int -> [(Int,Int)] -> [(Int,Int)]
 updateFreePos x y newx newy dx dy freePos = if elem (newx,newy) freePos 
@@ -137,14 +141,11 @@ dirtyCells gx gy freePos childList gen = let
                             | otherwise = randomR (0,(min 6 freePos)) gen
 
 
-
-
-
 -- simula el comportamiento de cambio del ambiente, donde los ninnos se mueven (o no) aleatoriamente,
 -- pueden mover obstaculos y ensuciar.
 -- recibe los objetos que representan el ambiente y los modifica segun el cambio aleatorio
-changeEnvironment :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> Int -> Int -> Int -> StdGen -> ([Object],[Object],[Object],[(Int,Int)])
-changeEnvironment childList dirtyList obstList freePos n m i gen
+changeEnvironment :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> Int -> Int -> Int -> StdGen -> ([Object],[Object],[Object],[(Int,Int)])
+changeEnvironment childList dirtyList obstList freePos robotList playpen n m i gen
         | i == length childList = (childList, dirtyList, obstList, freePos)
         |otherwise = 
             let 
@@ -153,7 +154,7 @@ changeEnvironment childList dirtyList obstList freePos n m i gen
                 x = row $ location child
                 y = column $ location child
 
-                canMove = canChildMove (x+dx) (y+dy) n m (dx,dy) freePos obstList
+                canMove = canChildMove child (x+dx) (y+dy) n m (dx,dy) freePos obstList robotList playpen
 
                 newChildList = if canMove
                                then moveChild child dx dy childList
@@ -164,11 +165,14 @@ changeEnvironment childList dirtyList obstList freePos n m i gen
                               else obstList
 
                 newfreePos = if canMove
-                             then updateFreePos x y (x+dx) (y+dy) dx dy freePos
+                             then if elem (x,y) (getPosObjects robotList)
+                                  then delete (x,y) (updateFreePos x y (x+dx) (y+dy) dx dy freePos)
+                                  else updateFreePos x y (x+dx) (y+dy) dx dy freePos
                              else freePos
 
 
-                (newDirtyList,newNewFreePos) = if canMove
+                (newDirtyList,newNewFreePos) = 
+                    if canMove
                     then let (gx,gy) = randomGrid3x3 x y n m gen
                              posToDirt = dirtyCells gx gy newfreePos childList gen
                              dirtyObjects = [(createObject "Dirty" location) | location <- posToDirt]
@@ -177,4 +181,4 @@ changeEnvironment childList dirtyList obstList freePos n m i gen
                              
                     else (dirtyList,newfreePos)
             
-            in changeEnvironment newChildList newDirtyList newObstList newNewFreePos n m (i+1) newGen
+            in changeEnvironment newChildList newDirtyList newObstList newNewFreePos robotList playpen n m (i+1) newGen

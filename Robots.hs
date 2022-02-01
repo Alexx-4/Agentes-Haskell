@@ -1,58 +1,103 @@
+module Robots 
+(
+        randomRobot,
+        nannyRobot
+)
+where
+
 import Objects
 import Environment
 import Functions
+import UtilsRobots
 
--- un robot puede moverse a casillas que esten libres, sucias o a una casilla 
--- del corral si este no tiene un ninno
-canRobotMove :: Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> String -> Bool
-canRobotMove x y freePos dirtyList playpen childList name_object
-        | elem (x,y) freePos || elem (x,y) (getPosObjects dirtyList) = True
-        | elem (x,y) (getPosObjects playpen) && not ( elem (x,y) (getPosObjects childList) ) = True
-        | elem (x,y) (getPosObjects childList) && name_object == "Child" = True
-        | otherwise = False
+import Data.List
+import System.Random
 
 
--- devuelve la menor distancia del objeto que se le pasa en queue (primer parametro) al resto de los
--- objetos, devolviendo en visited el arbol del bfs, retornando cuando encuentra el objeto especificado 
--- en el ultimo parametro. Si no lo encuentra retorna objeto null
-bfs :: [Object] -> [(Object,Object)] -> Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> String -> (Object,[(Object,Object)])
-bfs [] visited _ _ _ _ _ _ _ = (Object "null" (Location (-1) (-1)),[])
-bfs queue@(obj@(Object name (Location x y)):xs) visited n m freePos dirtyList playpen childList name_object
-    | name == name_object = (obj, visited)
-    | otherwise =
-            let adj = [((a i),(b i)) | i <- [0..3], isValidPos (a i) (b i) n m, 
-                                                    canRobotMove (a i) (b i) freePos dirtyList playpen childList name_object, 
-                                                    not (isVisited (a i) (b i) visited)]
+-- simula el momento en el que un robot deja un ninno
+moveRobotLeftChild :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotLeftChild robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
+        let newRobot = Object "Robot free" (Location x y)
+            (newRobotList, newFreePos) = moveRobot newRobot x y childList freePos playpen robotList dirtyList
 
-                objsList = posToObject ((getFreePosAsObject freePos) ++ dirtyList ++ playpen ++ childList) adj
-                newqueue = xs ++ objsList
-                newVisited = visited ++ zip (repeat obj) objsList
-
-            in bfs newqueue newVisited n m freePos dirtyList playpen childList name_object
-
-            where   a i = x + dirx!!i
-                    b i = y + diry!!i
-
-                    -- devuelve si un objeto (dada su posicion) fue visitado
-                    isVisited :: Int -> Int -> [(Object,Object)] -> Bool
-                    isVisited x y [] = False
-                    isVisited x y ((_ , (Object _ (Location lx ly))) : xs)
-                            | x == lx && y == ly = True
-                            | otherwise = isVisited x y xs
+        in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)
+        
 
 
+-- la prioridad del robot ninnera es meter a los ninnos en el corral, si no hay ninno alcanzable se pone a limpiar
+-- si no puede hacer ninguna de las dos cosas entonces se mueve aleatoriamente por todo el tablero.
+nannyRobot :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+nannyRobot robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen n m
+        | state == "free" = 
+                let
+                (child, childVisited) = bfs [robot] [] n m freePos dirtyList playpen childList "Child"
+                (dirty, dirtyVisited) = bfs [robot] [] n m freePos dirtyList playpen childList "Dirty"
 
--- devuelve la mejor posicion para llegar al objeto que se pasa como parametro
-getPosToMoveRobot :: Object -> [(Object,Object)] -> Object
-getPosToMoveRobot obj visited
-        | head(name parent) == 'R' = obj
-        | otherwise = getPosToMoveRobot parent visited name_object
+                childPath = getPathToMoveRobot child childVisited
+                dirtyPath = getPathToMoveRobot dirty dirtyVisited
 
-        where 
-            parent = parentOf obj visited
+                reachableChild = if childPath == [] then False else True
+                reachableDirty = if dirtyPath == [] then False else True
 
-            parentOf :: Object -> [(Object,Object)] -> Object
-            parentOf _ [] = Object "null" (Location (-1) (-1))
-            parentOf obj ((parent,child):xs)
-                | obj == child = parent
-                | otherwise = parentOf obj xs
+                in      if reachableChild 
+                        then moveRobotChild robot childPath childList freePos dirtyList playpen robotList gen
+                        else    if reachableDirty
+                                then moveRobotDirty robot dirtyPath childList freePos dirtyList playpen robotList gen
+                                else randomRobot robot childList freePos dirtyList playpen robotList gen n m
+
+        | otherwise = 
+                let
+                
+                (play, playVisited) = bfs [robot] [] n m freePos dirtyList playpen childList "Playpen"
+                playPath = getPathToMoveRobot play playVisited
+
+                reachablePlay = if playPath == [] then False else True
+
+                in      if robotInPlaypen
+                        then    if playplenInPosUp
+                                then moveRobotUp robot childList freePos dirtyList playpen robotList gen
+                                else moveRobotLeftChild robot childList freePos dirtyList playpen robotList gen
+                        
+                        else    if reachablePlay
+                                then moveRobotPlay robot playPath childList freePos dirtyList playpen robotList gen
+                                else randomRobot robot childList freePos dirtyList playpen robotList gen n m
+
+                
+
+     where      state = getRobotState robot
+                robotInPlaypen = elem (x,y) (getPosObjects playpen)
+                playplenInPosUp = elem ((x+1),y) (getPosObjects playpen) && not (elem ((x+1),y) (getPosObjects childList)) 
+
+
+-- el robot random se mueve aleatoriamente en el tablero, si no esta cargando un ninno y
+-- encuentra una casilla sucia, la limpia.
+randomRobot :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+randomRobot robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen n m
+        | elem (x,y) (getPosObjects dirtyList) = 
+                let newDirtyList = delete (Object "Dirty" (Location x y)) dirtyList
+                in (childList, playpen, newDirtyList, robotList, freePos, gen)
+
+        | otherwise =
+                let 
+                        adj = [((dirx!!i),(diry!!i)) | i <- [0..3], isValidPos (a i) (b i) n m, 
+                                                        canRobotMove (a i) (b i) freePos dirtyList playpen childList ""]
+                in      if adj == []
+                        then (childList, playpen, dirtyList, robotList, freePos, gen)
+                        else let
+                                (i,newGen) = randomR (0, ((length adj)-1)) gen
+                                (dx,dy) = adj !! i
+
+                                newx = x + dx
+                                newy = y + dy
+
+                                newChildList =  if (getRobotState robot) == "charging"
+                                                then let child = getObj (x,y) childList
+                                                     in moveChild child dx dy childList
+                                                else childList
+
+                                (newRobotList, newFreePos) = moveRobot robot newx newy newChildList freePos playpen robotList dirtyList
+                                
+                        in (newChildList, playpen, dirtyList, newRobotList, newFreePos, newGen) 
+
+                where   a i = x + dirx!!i
+                        b i = y + diry!!i
