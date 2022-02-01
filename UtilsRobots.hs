@@ -8,7 +8,8 @@ module UtilsRobots
     moveRobotChild,
     moveRobotDirty,
     moveRobotPlay,
-    moveRobotUp
+    moveRobotUp,
+    moveRobotLeftChild
 
 )
 where
@@ -22,31 +23,32 @@ import System.Random
 
 -- un robot puede moverse a casillas que esten libres, sucias o a una casilla 
 -- del corral si este no tiene un ninno
-canRobotMove :: Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> String -> Bool
-canRobotMove x y freePos dirtyList playpen childList name_object
-        | elem (x,y) freePos || elem (x,y) (getPosObjects dirtyList) = True
-        | elem (x,y) (getPosObjects playpen) && not ( elem (x,y) (getPosObjects childList) ) = True
-        | elem (x,y) (getPosObjects childList) && name_object == "Child" = True
-        | otherwise = False
+canRobotMove :: Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> [Object] -> String -> Bool
+canRobotMove x y freePos dirtyList playpen childList robotList name_object
+  | elem (x,y) (getPosObjects robotList) = False
+  | elem (x,y) freePos || elem (x,y) (getPosObjects dirtyList) = True
+  | elem (x,y) (getPosObjects playpen) && not ( elem (x,y) (getPosObjects childList) ) = True
+  | elem (x,y) (getPosObjects childList) && name_object == "Child" && not ( elem (x,y) (getPosObjects playpen) ) = True
+  | otherwise = False
 
 
 -- devuelve la menor distancia del objeto que se le pasa en queue (primer parametro) al resto de los
 -- objetos, devolviendo en visited el arbol del bfs, retornando cuando encuentra el objeto especificado 
 -- en el ultimo parametro. Si no lo encuentra retorna objeto null
-bfs :: [Object] -> [(Object,Object)] -> Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> String -> (Object,[(Object,Object)])
-bfs [] visited _ _ _ _ _ _ _ = (Object "null" (Location (-1) (-1)),[])
-bfs queue@(obj@(Object name (Location x y)):xs) visited n m freePos dirtyList playpen childList name_object
+bfs :: [Object] -> [(Object,Object)] -> Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> [Object] -> String -> (Object,[(Object,Object)])
+bfs [] visited _ _ _ _ _ _ _ _= (Object "null" (Location (-1) (-1)),[])
+bfs queue@(obj@(Object name (Location x y)):xs) visited n m freePos dirtyList playpen childList robotList name_object
     | name == name_object = (obj, visited)
     | otherwise =
             let adj = [((a i),(b i)) | i <- [0..3], isValidPos (a i) (b i) n m, 
-                                                    canRobotMove (a i) (b i) freePos dirtyList playpen childList name_object, 
+                                                    canRobotMove (a i) (b i) freePos dirtyList playpen childList robotList name_object, 
                                                     not (isVisited (a i) (b i) visited)]
 
                 objsList = posToObject ((getFreePosAsObject freePos) ++ dirtyList ++ playpen ++ childList) adj
                 newqueue = xs ++ objsList
                 newVisited = visited ++ zip (repeat obj) objsList
 
-            in bfs newqueue newVisited n m freePos dirtyList playpen childList name_object
+            in bfs newqueue newVisited n m freePos dirtyList playpen childList robotList name_object
 
             where   a i = x + dirx!!i
                     b i = y + diry!!i
@@ -123,6 +125,7 @@ moveRobotDirty robot@(Object name (Location x y)) path childList freePos dirtyLi
                
                       in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)
 
+
 -- mueve el robot con el ninno cargado buscando el corral mas cercano para luego valorar el mejor 
 -- lugar donde dejarlo. Trata de moverse con dos pasos siempre que pueda.
 moveRobotPlay :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
@@ -155,3 +158,12 @@ moveRobotUp robot@(Object name (Location x y)) childList freePos dirtyList playp
                 else moveRobot robot (x+1) y newChildList freePos playpen robotList dirtyList
 
         in (newChildList, playpen, dirtyList, newRobotList, newFreePos, gen)
+
+
+-- simula el momento en el que un robot deja un ninno
+moveRobotLeftChild :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotLeftChild robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
+        let newRobot = Object "Robot free" (Location x y)
+            (newRobotList, newFreePos) = moveRobot newRobot x y childList freePos playpen robotList dirtyList
+
+        in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)

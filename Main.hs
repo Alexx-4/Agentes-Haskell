@@ -92,7 +92,7 @@ main =  do
         let obstList = locateObjects "Obstacle" obst freePos gen
         
         let aux = updatePos (getPosObjects obstList) freePos
-        let freePos = aux )
+        let freePos = aux
 
         -- ubicando ninnos
         gen <- newStdGen
@@ -110,12 +110,12 @@ main =  do
 
 
 
-        let freePos = [(0,4),(1,3),(2,0),(2,1),(2,2),(2,3),(2,4),(2,5),(3,2),(3,4),(3,5),(4,3),(4,5),(5,1),(5,2),(5,3),(5,4),(1,2),(1,0)]
+        let freePos = [(0,4),(1,3),(2,0),(2,1),(2,2),(2,3),(2,4),(2,5),(3,2),(3,4),(4,3),(4,5),(5,1),(5,2),(5,3),(5,4),(1,2),(1,0)]
         let dirtyList = [Object {name = "Dirty", location = Location {row = 1, column = 1}},Object {name = "Dirty", location = Location {row = 3, column = 0}},Object {name = "Dirty", location = Location {row = 4, column = 0}}]
-        let childList = [Object {name = "Child", location = Location {row = 5, column = 0}}]
+        let childList = [Object {name = "Child", location = Location {row = 5, column = 0}},Object {name = "Child", location = Location {row = 3, column = 5}}]
         let playpen = [Object {name = "Playpen", location = Location {row = 0, column = 0}},Object {name = "Playpen", location = Location {row = 0, column = 1}},Object {name = "Playpen", location = Location {row = 0, column = 2}}]
         let obstList = [Object {name = "Obstacle", location = Location {row = 4, column = 4}},Object {name = "Obstacle", location = Location {row = 3, column = 3}},Object {name ="Obstacle", location = Location {row = 4, column = 1}},Object {name = "Obstacle", location = Location {row = 0, column = 5}},Object {name = "Obstacle", location = Location {row = 3, column = 1}},Object {name = "Obstacle", location = Location {row = 4, column = 2}},Object {name = "Obstacle", location = Location{row = 1, column = 5}},Object {name = "Obstacle", location = Location {row = 5, column = 5}}]
-        let agentList = [Object {name = "Robot free", location = Location {row = 1, column = 4}},Object {name = "Robot free", location = Location {row = 0, column = 3}}]
+        let agentList = [Object {name = "Robot free", location = Location {row = 1, column = 4}},Object {name = "Robot free", location = Location {row = 0, column = 3}},Object {name = "Robot charging", location = Location {row = 3, column = 5}}]
 
 
 
@@ -123,21 +123,172 @@ main =  do
         
 
         let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
-                nannyRobot (agentList !! 0) childList freePos dirtyList playpen agentList (mkStdGen 5) n m
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
         
         let childList = newChildList 
         let playpen = newPlaypen
         let dirtyList = newDirty
         let agentList = newRobot
         let freePos = newFreePos
+        let gen = newGen
+        
 
 
         mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
 
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
         
 
 
-        gen <- newStdGen
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
+                randomRobot (agentList !! 0) childList freePos dirtyList playpen agentList gen n m
+        
+        let childList = newChildList 
+        let playpen = newPlaypen
+        let dirtyList = newDirty
+        let agentList = newRobot
+        let freePos = newFreePos
+        let gen = newGen
+        
+
+
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
+
+
+
+        
+
+
+
+
+
+
+        
+
+
+        {-gen <- newStdGen
         let (newChildList, newDirtyList, newObstList, newFreePos) =
                 changeEnvironment childList dirtyList obstList freePos agentList playpen n m 0 gen
         
@@ -146,121 +297,4 @@ main =  do
         let obstList = newObstList
         let freePos = newFreePos
 
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-        
-
-        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
-                nannyRobot (agentList !! 0) childList freePos dirtyList playpen agentList (mkStdGen 5) n m
-        
-        let childList = newChildList 
-        let playpen = newPlaypen
-        let dirtyList = newDirty
-        let agentList = newRobot
-        let freePos = newFreePos
-
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        
-
-
-        gen <- newStdGen
-        let (newChildList, newDirtyList, newObstList, newFreePos) =
-                changeEnvironment childList dirtyList obstList freePos agentList playpen n m 0 gen
-        
-        let childList = newChildList
-        let dirtyList = newDirtyList
-        let obstList = newObstList
-        let freePos = newFreePos
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
-                nannyRobot (agentList !! 0) childList freePos dirtyList playpen agentList (mkStdGen 5) n m
-        
-        let childList = newChildList 
-        let playpen = newPlaypen
-        let dirtyList = newDirty
-        let agentList = newRobot
-        let freePos = newFreePos
-
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        
-
-
-        gen <- newStdGen
-        let (newChildList, newDirtyList, newObstList, newFreePos) =
-                changeEnvironment childList dirtyList obstList freePos agentList playpen n m 0 gen
-        
-        let childList = newChildList
-        let dirtyList = newDirtyList
-        let obstList = newObstList
-        let freePos = newFreePos
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
-                nannyRobot (agentList !! 0) childList freePos dirtyList playpen agentList (mkStdGen 5) n m
-        
-        let childList = newChildList 
-        let playpen = newPlaypen
-        let dirtyList = newDirty
-        let agentList = newRobot
-        let freePos = newFreePos
-
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        
-
-
-        gen <- newStdGen
-        let (newChildList, newDirtyList, newObstList, newFreePos) =
-                changeEnvironment childList dirtyList obstList freePos agentList playpen n m 0 gen
-        
-        let childList = newChildList
-        let dirtyList = newDirtyList
-        let obstList = newObstList
-        let freePos = newFreePos
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        let (newChildList, newPlaypen, newDirty, newRobot, newFreePos, newGen) =
-                nannyRobot (agentList !! 0) childList freePos dirtyList playpen agentList (mkStdGen 5) n m
-        
-        let childList = newChildList 
-        let playpen = newPlaypen
-        let dirtyList = newDirty
-        let agentList = newRobot
-        let freePos = newFreePos
-
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-        
-
-
-        gen <- newStdGen
-        let (newChildList, newDirtyList, newObstList, newFreePos) =
-                changeEnvironment childList dirtyList obstList freePos agentList playpen n m 0 gen
-        
-        let childList = newChildList
-        let dirtyList = newDirtyList
-        let obstList = newObstList
-        let freePos = newFreePos
-
-        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m
-
-
-
-        
-
-
-
-       
-
-
-
-
+        mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m-}

@@ -2,7 +2,8 @@ module Functions
 (
     rand,
     mainPrintEnvironment,
-    getFreePosAsObject
+    getFreePosAsObject,
+    dirtPercent
 ) 
 where
     
@@ -15,6 +16,10 @@ import Data.List
 -- intervalo [min,max]
 rand :: Int -> (Int, Int) -> StdGen -> [Int]
 rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
+
+-- funcion que calcula el porcentaje de suciedad del ambiente
+dirtPercent :: [Object] -> Int -> Int -> Int
+dirtPercent dirtyList n m = div ((length dirtyList)*100) (n*m)
 
 
 --                               >>Para pintar el ambiente<<
