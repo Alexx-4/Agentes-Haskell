@@ -10,9 +10,36 @@ module Objects
     moveChild,
     posToObject,
     updateObj,
-    getObj
+    getObj,
+    dirx,
+    diry,
+    isValidPos,
+    rand
+
 ) 
 where
+
+import System.Random
+import Data.List
+
+
+-- direcciones posibles de casillas adyacentes
+dirx :: [Int]
+dirx = [1, 0, -1,  0]
+
+diry :: [Int]
+diry = [0, 1,  0, -1]
+
+
+-- dada una posicion x,y del ambiente devuelve si esta dentro de los limites de este
+isValidPos :: Int -> Int -> Int -> Int -> Bool
+isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
+
+
+-- devuelve una lista de n numeros aleatorios distintos en el
+-- intervalo [min,max]
+rand :: Int -> (Int, Int) -> StdGen -> [Int]
+rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
 
 
 -- cada objeto esta identificado por su nombre (ya sea robot, ninno, suciedad, etc),
@@ -70,11 +97,36 @@ posToObject objList ((x,y):ys) = getObject objList (x,y) ++ posToObject objList 
                                                                                         then [obj] 
                                                                                         else getObject xs (x,y)
 
--- el corral se representa como una lista de casillas,
--- esta funcion crea el corral dado un numero n y una lista de casillas vacias
-createPlaypen :: Int -> [(Int,Int)] -> [(Int, Int)]
-createPlaypen 0 _ = []
-createPlaypen n (x:xs) = x : createPlaypen (n - 1) xs
+-- el corral se representa como una lista de casillas, esta funcion crea el corral en posiciones adyacentes 
+-- aleatorias del ambiente, dado sus dimensiones y el numero de ninnos
+createPlaypen :: Int -> Int -> Int -> StdGen -> StdGen -> [(Int,Int)]
+createPlaypen child n m g1 g2 = 
+                    let 
+                        (x,_) = randomR (0, ((n-1)-2)) g1
+                        (y,_) = randomR (0,  (m-1))    g2
+
+                    in dfs [(x,y)] [] 0 child n m g1
+                    where
+                        -- devuelve una lista de casillas adyacentes seleccionadas de forma aleatoria
+                        dfs :: [(Int,Int)] -> [(Int,Int)] -> Int -> Int -> Int -> Int -> StdGen -> [(Int,Int)]
+                        dfs [] _ _ _ _ _ _ = []
+                        dfs stack@((x,y):xs) visited c child n m gen
+                            | c == child = visited
+                            | otherwise =
+                                let newVisited = visited ++ [(x,y)]
+                                    adj = [((a i),(b i)) | i <- (rand 4 (0,3) gen), 
+                                                                    isValidPos (a i) (b i) (n-2) m,
+                                                                    not (elem ((a i),(b i)) visited)]
+                                    (_,newGen) = randomR (0,0) gen :: (Int,StdGen)
+                        
+                                in  if adj == []
+                                    then dfs (adj ++ stack) newVisited (c+1) child n m newGen
+                                    else dfs ([adj !! 0] ++ stack) newVisited (c+1) child n m newGen
+                                    
+                        
+                                where   a i = x + dirx!!i
+                                        b i = y + diry!!i
+
 
 
 -- dado un objeto que representa un ninno, una direccion, modifica la lista 

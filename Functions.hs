@@ -1,6 +1,5 @@
 module Functions
 (
-    rand,
     mainPrintEnvironment,
     getFreePosAsObject,
     dirtPercent,
@@ -13,10 +12,6 @@ import Objects
 import System.Random
 import Data.List
 
--- devuelve una lista de n numeros aleatorios distintos en el
--- intervalo [min,max]
-rand :: Int -> (Int, Int) -> StdGen -> [Int]
-rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
 
 -- funcion que calcula el porcentaje de casillas que no estan sucias del ambiente
 dirtPercent :: [Object] -> [(Int,Int)] -> Int
@@ -73,7 +68,8 @@ insertInEnv name x y i env@(l:ls)
 printEnvironment :: [[String]] -> IO()
 printEnvironment [] = return ()
 printEnvironment (l:ls) = do
-                        print l
+                        putStrLn (concat (intersperse "|" l))
+                        putStrLn (concat $ take (length l) (repeat "---+"))
                         printEnvironment ls
 
 -- devuelve una lista de posiciones libres como instacias de tipo Objeto
@@ -92,7 +88,7 @@ mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m 
     let indexedEnv = envWithIndex env 0
     let columns = map fixIndex (map show [0..(m-1)])
     putStrLn("\n")
-    printEnvironment ((" $ ":columns):indexedEnv)
+    printEnvironment (("   ":columns):indexedEnv)
     putStrLn("\n")
 
 -- alinea los indices en el ambiente
@@ -103,4 +99,3 @@ envWithIndex [] _ = []
 envWithIndex (l:ls) i = ([fixIndex (show i)] ++ l): envWithIndex ls (i+1)
 
 -- #####################################################################################################
-

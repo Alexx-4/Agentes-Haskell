@@ -3,10 +3,7 @@ module Environment
     createPos,
     locateObjects,
     updatePos,
-    isValidPos,
-   changeEnvironment,
-   dirx,
-   diry
+    changeEnvironment,
 ) 
 where
 
@@ -15,14 +12,6 @@ import Functions
 
 import System.Random
 import Data.List
-
-
--- direcciones posibles de casillas adyacentes
-dirx :: [Int]
-dirx = [1, 0, -1,  0]
-
-diry :: [Int]
-diry = [0, 1,  0, -1]
 
 -- casillas posibles de 3x3 donde pueden estar los ninnos
 -- una cuadricula de 3x3 esta definida por su esquina superior izquierda
@@ -53,11 +42,6 @@ updatePos ((a,b):xs) list = updatePos xs (deletePos (a,b) list)
 deletePos :: (Int,Int) -> [(Int,Int)] -> [(Int,Int)]
 deletePos (x,y) [] = []
 deletePos (x,y) ((a,b): xs) = if a == x && b == y then deletePos (x,y) xs else (a,b): deletePos (x,y) xs
-
-
--- dada una posicion x,y del ambiente devuelve si esta dentro de los limites de este
-isValidPos :: Int -> Int -> Int -> Int -> Bool
-isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
 
 
 -- devuelve una direccion aleatoria

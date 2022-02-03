@@ -66,8 +66,15 @@ getInput =  do
         time <- getLine
         let t = read time :: Int
 
-        putStrLn ("\nFinally, choose a robot type. Enter corresponding number: \n  1- random Robot \n  2- nanny Robot \n  3- cleaner Robot \n  4- balanced Robot \n  5- teamwork Robot \n >>")
+        putStrLn ("\nChoose a robot type. Enter corresponding number: \n  1- random Robot \n  2- nanny Robot \n  3- cleaner Robot \n  4- balanced Robot \n  5- teamwork Robot \n >>")
         type' <- getLine
         let robotType = read type' :: Int
 
-        createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType
+        putStrLn ("\nFinally, enter number of simulations \n >>")
+        sim <- getLine
+        let simulations = read sim :: Int
+
+        putStrLn ("\nDebug mode: y/n\n")
+        debugMode <- getLine
+
+        createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType 0 simulations [] [] debugMode
