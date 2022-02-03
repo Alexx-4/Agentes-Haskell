@@ -98,7 +98,7 @@ moveRobot (Object name (Location x y)) newx newy childList freePos playpen robot
 
 -- mueve el robot buscando el ninno mas cercano, si se mueve a un ninno entonces pasa al estado de
 -- cargando ninno.
-moveRobotChild :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)], StdGen)
+moveRobotChild :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)], StdGen)
 moveRobotChild robot@(Object name (Location x y)) path childList freePos dirtyList playpen robotList gen =
         let 
                 newx = row $ location (path !! 0)
@@ -108,27 +108,27 @@ moveRobotChild robot@(Object name (Location x y)) path childList freePos dirtyLi
                                 else robot
                 (newRobotList, newFreePos) = moveRobot newRobot newx newy childList freePos playpen robotList dirtyList
 
-        in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)
+        in (childList, dirtyList, newRobotList, newFreePos, gen)
 
 
 -- si esta encima de una suciedad, la limpia, en otro se mueve en busca de la suciedad mas cercana
-moveRobotDirty :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotDirty :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 moveRobotDirty robot@(Object name (Location x y)) path childList freePos dirtyList playpen robotList gen
         | elem (x,y) (getPosObjects dirtyList) = 
                 let newDirtyList = delete (Object "Dirty" (Location x y)) dirtyList
-                in (childList, playpen, newDirtyList, robotList, freePos, gen)
+                in (childList, newDirtyList, robotList, freePos, gen)
         
         | otherwise = let
                         newx = row $ location (path !! 0)
                         newy = column $ location (path !! 0)
                         (newRobotList, newFreePos) = moveRobot robot newx newy childList freePos playpen robotList dirtyList
                
-                      in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)
+                      in (childList, dirtyList, newRobotList, newFreePos, gen)
 
 
 -- mueve el robot con el ninno cargado buscando el corral mas cercano para luego valorar el mejor 
 -- lugar donde dejarlo. Trata de moverse con dos pasos siempre que pueda.
-moveRobotPlay :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotPlay :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 moveRobotPlay robot@(Object name (Location x y)) path childList freePos dirtyList playpen robotList gen =
         let twoSteps = (length path) >= 2
 
@@ -140,30 +140,30 @@ moveRobotPlay robot@(Object name (Location x y)) path childList freePos dirtyLis
 
             (newRobotList, newFreePos) = moveRobot robot newx newy newChildList freePos playpen robotList dirtyList
 
-        in (newChildList, playpen, dirtyList, newRobotList, newFreePos, gen)
+        in (newChildList, dirtyList, newRobotList, newFreePos, gen)
         
 
 
 -- busca la mejor manera de acomodar los ninnos en el corral, tratando de evitar 'estancamientos' de ninnos.
-moveRobotUp :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotUp :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 moveRobotUp robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
-        let twoSteps = elem ((x+2),y) (getPosObjects playpen) && not (elem ((x+2),y) (getPosObjects childList))
+        let twoSteps = elem ((x-2),y) (getPosObjects playpen) && not (elem ((x-2),y) (getPosObjects childList))
             newChildList =  let child = getObj (x,y) childList
                             in  if twoSteps
-                                then moveChild child 2 0 childList
-                                else moveChild child 1 0 childList
+                                then moveChild child (-2) 0 childList
+                                else moveChild child (-1) 0 childList
             (newRobotList, newFreePos) = 
                 if twoSteps
-                then moveRobot robot (x+2) y newChildList freePos playpen robotList dirtyList
-                else moveRobot robot (x+1) y newChildList freePos playpen robotList dirtyList
+                then moveRobot robot (x-2) y newChildList freePos playpen robotList dirtyList
+                else moveRobot robot (x-1) y newChildList freePos playpen robotList dirtyList
 
-        in (newChildList, playpen, dirtyList, newRobotList, newFreePos, gen)
+        in (newChildList, dirtyList, newRobotList, newFreePos, gen)
 
 
 -- simula el momento en el que un robot deja un ninno
-moveRobotLeftChild :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotLeftChild :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 moveRobotLeftChild robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
         let newRobot = Object "Robot free" (Location x y)
             (newRobotList, newFreePos) = moveRobot newRobot x y childList freePos playpen robotList dirtyList
 
-        in (childList, playpen, dirtyList, newRobotList, newFreePos, gen)
+        in (childList, dirtyList, newRobotList, newFreePos, gen)

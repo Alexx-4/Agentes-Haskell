@@ -3,7 +3,8 @@ module Functions
     rand,
     mainPrintEnvironment,
     getFreePosAsObject,
-    dirtPercent
+    dirtPercent,
+    indexOf
 ) 
 where
     
@@ -17,9 +18,18 @@ import Data.List
 rand :: Int -> (Int, Int) -> StdGen -> [Int]
 rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
 
--- funcion que calcula el porcentaje de suciedad del ambiente
-dirtPercent :: [Object] -> Int -> Int -> Int
-dirtPercent dirtyList n m = div ((length dirtyList)*100) (n*m)
+-- funcion que calcula el porcentaje de casillas que no estan sucias del ambiente
+dirtPercent :: [Object] -> [(Int,Int)] -> Int
+dirtPercent dirtyList freePos = div (free * 100) (dirty+free) 
+                                where dirty = length dirtyList
+                                      free = length freePos
+
+-- dados un elemento y una lista devuelve su indice en la lista, en caso que no aparezca devuelve -1
+indexOf :: (Eq a) => a -> [a] -> Int
+indexOf obj list = indexOf' obj list 0
+        where
+            indexOf' _ [] _ = -1
+            indexOf' obj (x:xs) i = if obj == x then i else indexOf' obj xs (i+1)
 
 
 --                               >>Para pintar el ambiente<<
@@ -81,8 +91,9 @@ mainPrintEnvironment playpen agentList childList dirtyList obstList freePos n m 
     let env = getEnvironment orderList empty
     let indexedEnv = envWithIndex env 0
     let columns = map fixIndex (map show [0..(m-1)])
-    putStrLn("\n\n")
+    putStrLn("\n")
     printEnvironment ((" $ ":columns):indexedEnv)
+    putStrLn("\n")
 
 -- alinea los indices en el ambiente
 fixIndex s = if length s == 1 then " " ++ s ++ " " else if length s == 2 then s ++ " " else s
