@@ -18,13 +18,15 @@ import Robots
 
 -- crea el estado inicial del ambiente, ubicando en posiciones aleatorias los distintos objetos
 createEnvironment :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [Int] -> [Int] -> String -> IO()
-createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType sim totalSim results allIter debugMode
+createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType sim totalSim results allTurns debugMode
     | sim == totalSim = let averageResults = div ((sum results)*100) (length results)
-                            averageIter = div ((sum allIter)) (length allIter)
+                            averageTurn = div (sum allTurns) (length allTurns)
+                            averageIter = div ((sum allTurns)*agNumber) (length allTurns)
 
                         in  do
-                            putStrLn ("Victory Percent    = " ++ (show averageResults) ++ "%")
-                            putStrLn ("Iterations average = " ++ (show averageIter) ++ "\n")
+                            putStrLn ("Victory Percent           = " ++ (show averageResults) ++ "%")
+                            putStrLn ("Turns average             = " ++ (show averageTurn))
+                            putStrLn ("Robots Iterations average = " ++ (show averageIter) ++ "\n")
 
     | otherwise = do
                 let freePos = createPos n m
@@ -70,7 +72,7 @@ createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType si
 
                 gen <- newStdGen
                 mainPrintEnvironment playpen robotList childList dirtyList obstList freePos n m
-                simulation childList robotList dirtyList freePos obstList playpen t 1 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
+                simulation childList robotList dirtyList freePos obstList playpen t 1 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
 
                 where
                     getRobotType
@@ -84,19 +86,20 @@ createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType si
 -- ejecuta la simulacion 
 simulation :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> Int -> Int -> Int -> StdGen -> Int -> Int ->
     (Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[(Int,Int)],StdGen)) -> Int -> Int -> Int -> Int -> [Int] -> [Int] -> String -> IO()
-simulation childList robotList dirtyList freePos obstList playpen t iteration iRobot gen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
-    | (dirtPercent dirtyList freePos) < 60 && iteration > 5 =  do 
+simulation childList robotList dirtyList freePos obstList playpen t turn iRobot gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
+    | (dirtPercent dirtyList freePos) < 60 && turn > 5 =  do 
                 putStrLn("Fail")
                 putStrLn("Robots couldnt keep environment clean")
-                putStrLn("Iterations: " ++ (show iteration))
+                putStrLn("Turns: " ++ (show turn))
+                putStrLn("Robots iterations: " ++ (show (turn * (length robotList))))
                 printAt
-                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [0]) (allIter ++ [iteration]) debugMode
+                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [0]) (allTurns ++ [turn]) debugMode
     
-    | iteration > 500 = do
-                putStrLn("Success")
-                putStrLn("Number of iterations exceeded")
+    | turn > 150 = do
+                putStrLn("Tie")
+                putStrLn("Number of turns exceeded")
                 printAt
-                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [1]) (allIter ++ [iteration]) debugMode
+                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim results (allTurns ++ [turn]) debugMode
     
     | ( let inPlaypen = [child | child <- (getPosObjects childList), elem child (getPosObjects playpen)]
             inRobot = [child | child <- (getPosObjects childList), elem child (getPosObjects robotList)]
@@ -106,13 +109,14 @@ simulation childList robotList dirtyList freePos obstList playpen t iteration iR
         in ( (length inPlaypen) + (length inRobot) - (length inBoth) ) == (length childList)) = do
                 putStrLn ("Success")
                 putStrLn ("All childs in playplen or in robots")
-                putStrLn("Iterations: " ++ (show iteration))
+                putStrLn("Turns: " ++ (show turn))
+                putStrLn("Robots iterations: " ++ (show (turn * (length robotList))))
                 printAt
-                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [1]) (allIter ++ [iteration]) debugMode
+                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [1]) (allTurns ++ [turn]) debugMode
 
 
     | iRobot == (length robotList) = 
-            if (mod iteration t) == 0
+            if (mod turn t) == 0
             then let  (newChildList, newDirtyList, newObstList, newFreePos) =
                                 changeEnvironment childList dirtyList obstList freePos robotList playpen n m 0 gen
 
@@ -121,9 +125,9 @@ simulation childList robotList dirtyList freePos obstList playpen t iteration iR
                      putStrLn ("\nEnvironment changing\n")
                      mainPrintEnvironment playpen robotList newChildList newDirtyList newObstList newFreePos n m
                      printNumber
-                     simulation newChildList robotList newDirtyList newFreePos newObstList playpen t (iteration + 1) 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
+                     simulation newChildList robotList newDirtyList newFreePos newObstList playpen t (turn + 1) 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
 
-            else simulation childList robotList dirtyList freePos obstList playpen t (iteration + 1) 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
+            else simulation childList robotList dirtyList freePos obstList playpen t (turn + 1) 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
 
     | otherwise = 
         let robot = robotList !! iRobot
@@ -150,6 +154,6 @@ simulation childList robotList dirtyList freePos obstList playpen t iteration iR
             then do
                 putStrLn ("Press Enter to continue")
                 a <- getLine
-                simulation newChildList newRobotList newDirtyList newFreePos obstList playpen t iteration (iRobot+1) newGen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
+                simulation newChildList newRobotList newDirtyList newFreePos obstList playpen t turn (iRobot+1) newGen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
             else 
-                simulation newChildList newRobotList newDirtyList newFreePos obstList playpen t iteration (iRobot+1) newGen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
+                simulation newChildList newRobotList newDirtyList newFreePos obstList playpen t turn (iRobot+1) newGen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode

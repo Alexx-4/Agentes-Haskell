@@ -74,7 +74,7 @@ getInput =  do
         sim <- getLine
         let simulations = read sim :: Int
 
-        putStrLn ("\nDebug mode: y/n\n")
+        putStrLn ("\nDebug mode: y/n \n >> ")
         debugMode <- getLine
 
         createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType 0 simulations [] [] debugMode

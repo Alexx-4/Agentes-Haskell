@@ -60,7 +60,7 @@ nannyRobot robot@(Object name (Location x y)) childList freePos dirtyList plaype
 
      where      state = getRobotState robot
                 robotInPlaypen = elem (x,y) (getPosObjects playpen)
-                playplenInPosUp = elem ((x-1),y) (getPosObjects playpen) && not (elem ((x-1),y) (getPosObjects childList)) 
+                playplenInPosUp = canRobotMove (x-1) y freePos dirtyList playpen childList robotList "" 
 
 
 -- el robot random se mueve aleatoriamente en el tablero, si no esta cargando un ninno y

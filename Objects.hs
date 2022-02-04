@@ -39,7 +39,9 @@ isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
 -- devuelve una lista de n numeros aleatorios distintos en el
 -- intervalo [min,max]
 rand :: Int -> (Int, Int) -> StdGen -> [Int]
-rand n (min, max) gen =  take n $ nub $ randomRs (min, max) gen :: [Int]
+rand n (min, max) gen = if n > (max - min + 1) 
+                        then error "full environment"
+                        else take n $ nub $ randomRs (min, max) gen :: [Int]
 
 
 -- cada objeto esta identificado por su nombre (ya sea robot, ninno, suciedad, etc),
@@ -117,11 +119,9 @@ createPlaypen child n m g1 g2 =
                                     adj = [((a i),(b i)) | i <- (rand 4 (0,3) gen), 
                                                                     isValidPos (a i) (b i) (n-2) m,
                                                                     not (elem ((a i),(b i)) visited)]
-                                    (_,newGen) = randomR (0,0) gen :: (Int,StdGen)
+                                    (_,newGen) = randomR (0,3) gen :: (Int,StdGen)
                         
-                                in  if adj == []
-                                    then dfs (adj ++ stack) newVisited (c+1) child n m newGen
-                                    else dfs ([adj !! 0] ++ stack) newVisited (c+1) child n m newGen
+                                in  dfs (adj ++ xs) newVisited (c+1) child n m newGen
                                     
                         
                                 where   a i = x + dirx!!i
