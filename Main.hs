@@ -12,24 +12,19 @@ import Simulation
 -- Presentacion
 main = do
         putStrLn ("\n\nPROYECTO DE SIMULACION Y PROGRAMACION DECLARATIVA \n\n\t\tAlejandro Campos\n\t\t     C-411\n\n\t      Problema: Agentes\n\n    Facultad de Matemática y Computación\n\t Universidad de La Habana\n\t\t   2022\n\n")
-        getInput
+        catchExceptions
 
-{-- llama a la funcion que crea el ambiente y comienza la simulacion
--- captando las excepciones de la entrada de usuario mediante la funcion handler
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!SE VA A LLAMAR catchExceptions!!!!!!!!!!!!!!!!!!!
-beginSimulation :: IO ()
-beginSimulation = catch createEnvironment handler
+
+-- llama a la funcion que recibe la entrada de usuario
+-- captando las excepciones mediante la funcion handler
+catchExceptions :: IO ()
+catchExceptions = catch getInput handler
 
 -- capta las excepciones de los parametros de entrada y vuelve a iniciar la simulacion
 handler :: SomeException -> IO ()
 handler e = do 
         putStrLn "Whoops, had some trouble on input parameters! Try again."
-        -- !!!!!!!!!! UNCOMMENT THIS !!!!!!!!!!!!!!!!!!!!!
-        --beginSimulation-}
-
-
-
-
+        getInput
 
 
 -- recibe como entrada del usuario las dimensiones nxm del ambiente y la cantidad de objetos de
