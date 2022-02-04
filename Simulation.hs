@@ -24,7 +24,7 @@ createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType si
 
                         in  do
                             putStrLn ("Victory Percent    = " ++ (show averageResults) ++ "%")
-                            putStrLn ("Iterations average = " ++ (show averageIter))
+                            putStrLn ("Iterations average = " ++ (show averageIter) ++ "\n")
 
     | otherwise = do
                 let freePos = createPos n m
@@ -85,7 +85,7 @@ createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType si
 simulation :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> Int -> Int -> Int -> StdGen -> Int -> Int ->
     (Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[(Int,Int)],StdGen)) -> Int -> Int -> Int -> Int -> [Int] -> [Int] -> String -> IO()
 simulation childList robotList dirtyList freePos obstList playpen t iteration iRobot gen n m actionRobot robotType dirtyNumber sim totalSim results allIter debugMode
-    | (dirtPercent dirtyList freePos) < 60 && iteration > 10 =  do 
+    | (dirtPercent dirtyList freePos) < 60 && iteration > 5 =  do 
                 putStrLn("Fail")
                 putStrLn("Robots couldnt keep environment clean")
                 putStrLn("Iterations: " ++ (show iteration))
@@ -100,8 +100,10 @@ simulation childList robotList dirtyList freePos obstList playpen t iteration iR
     
     | ( let inPlaypen = [child | child <- (getPosObjects childList), elem child (getPosObjects playpen)]
             inRobot = [child | child <- (getPosObjects childList), elem child (getPosObjects robotList)]
+            inBoth = [child | child <- (getPosObjects childList), elem child (getPosObjects playpen),
+                                                                     elem child (getPosObjects robotList)]
 
-        in ( (length inPlaypen) + (length inRobot) ) == (length childList)) = do
+        in ( (length inPlaypen) + (length inRobot) - (length inBoth) ) == (length childList)) = do
                 putStrLn ("Success")
                 putStrLn ("All childs in playplen or in robots")
                 putStrLn("Iterations: " ++ (show iteration))
@@ -139,7 +141,7 @@ simulation childList robotList dirtyList freePos obstList playpen t iteration iR
 
 
     where
-        printAt =     putStrLn("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        printAt =     putStrLn("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
         printNumber = putStrLn("##################################################################################################")
         printMinus =  putStrLn("--------------------------------------------------------------------------------------------------")
 

@@ -8,7 +8,7 @@ module UtilsRobots
     moveRobotChild,
     moveRobotDirty,
     moveRobotPlay,
-    moveRobotUp,
+    moveRobotInPlay,
     moveRobotLeftChild
 
 )
@@ -145,9 +145,9 @@ moveRobotPlay robot@(Object name (Location x y)) path childList freePos dirtyLis
 
 
 -- busca la mejor manera de acomodar los ninnos en el corral, tratando de evitar 'estancamientos' de ninnos.
-moveRobotUp :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
-moveRobotUp robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
-        let twoSteps = elem ((x-2),y) (getPosObjects playpen) && not (elem ((x-2),y) (getPosObjects childList))
+moveRobotInPlay :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
+moveRobotInPlay robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen =
+        let twoSteps = canRobotMove (x-2) y freePos dirtyList playpen childList robotList ""
             newChildList =  let child = getObj (x,y) childList
                             in  if twoSteps
                                 then moveChild child (-2) 0 childList

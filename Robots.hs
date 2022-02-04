@@ -49,7 +49,7 @@ nannyRobot robot@(Object name (Location x y)) childList freePos dirtyList plaype
 
                 in      if robotInPlaypen
                         then    if playplenInPosUp
-                                then moveRobotUp robot childList freePos dirtyList playpen robotList gen
+                                then moveRobotInPlay robot childList freePos dirtyList playpen robotList gen
                                 else moveRobotLeftChild robot childList freePos dirtyList playpen robotList gen
                         
                         else    if reachablePlay
@@ -117,7 +117,7 @@ cleanerRobot robot@(Object name (Location x y)) childList freePos dirtyList play
                 then moveRobotLeftChild robot childList freePos dirtyList playpen robotList gen
                 else    if robotInPlaypen
                         then    if playplenInPosUp
-                                then moveRobotUp robot childList freePos dirtyList playpen robotList gen
+                                then moveRobotInPlay robot childList freePos dirtyList playpen robotList gen
                                 else moveRobotLeftChild robot childList freePos dirtyList playpen robotList gen
 
                         else    if reachablePlay
@@ -127,7 +127,7 @@ cleanerRobot robot@(Object name (Location x y)) childList freePos dirtyList play
         where
                 state = getRobotState robot
                 robotInPlaypen = elem (x,y) (getPosObjects playpen)
-                playplenInPosUp = elem ((x-1),y) (getPosObjects playpen) && not (elem ((x-1),y) (getPosObjects childList))
+                playplenInPosUp = canRobotMove (x-1) y freePos dirtyList playpen childList robotList ""
 
                 (child, childVisited) = bfs [robot] [] n m freePos dirtyList playpen childList robotList "Child"
                 (dirty, dirtyVisited) = bfs [robot] [] n m freePos dirtyList playpen childList robotList "Dirty"
