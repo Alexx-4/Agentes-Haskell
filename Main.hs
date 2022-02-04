@@ -23,7 +23,8 @@ catchExceptions = catch getInput handler
 -- capta las excepciones de los parametros de entrada y vuelve a iniciar la simulacion
 handler :: SomeException -> IO ()
 handler e = do 
-        putStrLn "Whoops, had some trouble on input parameters! Try again."
+        putStrLn "\nWHOOPS, had some trouble on input parameters! Try again.\n\n"
+        putStrLn "------------------------------------------------------------"
         getInput
 
 
