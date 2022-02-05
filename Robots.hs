@@ -60,7 +60,7 @@ nannyRobot robot@(Object name (Location x y)) childList freePos dirtyList plaype
 
      where      state = getRobotState robot
                 robotInPlaypen = elem (x,y) (getPosObjects playpen)
-                playplenInPosUp = canRobotMove (x-1) y freePos dirtyList playpen childList robotList "" 
+                playplenInPosUp = elem ((x-1),y) (getPosObjects playpen) && canRobotMove (x-1) y freePos dirtyList playpen childList robotList "" 
 
 
 -- el robot random se mueve aleatoriamente en el tablero, si encuentra una casilla sucia, 
@@ -128,7 +128,7 @@ cleanerRobot robot@(Object name (Location x y)) childList freePos dirtyList play
         where
                 state = getRobotState robot
                 robotInPlaypen = elem (x,y) (getPosObjects playpen)
-                playplenInPosUp = canRobotMove (x-1) y freePos dirtyList playpen childList robotList ""
+                playplenInPosUp = elem ((x-1),y) (getPosObjects playpen) && canRobotMove (x-1) y freePos dirtyList playpen childList robotList ""
 
                 (child, childVisited) = bfs [robot] [] n m freePos dirtyList playpen childList robotList "Child"
                 (dirty, dirtyVisited) = bfs [robot] [] n m freePos dirtyList playpen childList robotList "Dirty"
