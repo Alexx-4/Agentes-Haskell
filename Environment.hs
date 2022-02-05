@@ -1,7 +1,6 @@
 module Environment
 (
     createPos,
-    locateObjects,
     updatePos,
     changeEnvironment,
 ) 
@@ -16,14 +15,6 @@ import Data.List
 -- casillas posibles de 3x3 donde pueden estar los ninnos
 -- una cuadricula de 3x3 esta definida por su esquina superior izquierda
 grid3x3 = [(0,0),(0,-1),(0,-2),(-1,0),(-1,-1),(-1,-2),(-2,0),(-2,-1),(-2,-2)]
-                                
-                                         
--- devuelve una lista con n objetos ubicados en posiciones aleatorias recibe el nombre 
--- del objeto, la cantidad de objetos a ubicar y la lista con las posiciones que quedan vacias (emptyPos), 
--- ademas del generador que utiliza el random
-locateObjects :: String -> Int -> [(Int,Int)] -> StdGen -> [Object]
-locateObjects name n emptyPos gen = let indexes = rand n (0, ((length emptyPos) - 1)) gen
-                                    in  [createObject name (emptyPos !! i) | i <- indexes]
 
 
 -- crea una lista con todas las posiciones posibles

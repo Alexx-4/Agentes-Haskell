@@ -22,7 +22,7 @@ import Data.List
 import System.Random
 
 -- un robot puede moverse a casillas que esten libres, sucias o a una casilla 
--- del corral si este no tiene un ninno
+-- del corral si este no tiene un ninno. Puede moverse tambien a una casilla de ninno si lo esta buscando
 canRobotMove :: Int -> Int -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> [Object] -> String -> Bool
 canRobotMove x y freePos dirtyList playpen childList robotList name_object
   | elem (x,y) (getPosObjects robotList) = False
@@ -61,7 +61,7 @@ bfs queue@(obj@(Object name (Location x y)):xs) visited n m freePos dirtyList pl
                             | otherwise = isVisited x y xs
 
 
--- devuelve la mejor posicion para llegar al objeto que se pasa como parametro
+-- devuelve el camino mas corto para llegar al objeto especificado
 getPathToMoveRobot :: Object -> [(Object,Object)] -> [Object]
 getPathToMoveRobot obj visited
         | name obj == "null" = []
@@ -127,7 +127,7 @@ moveRobotDirty robot@(Object name (Location x y)) path childList freePos dirtyLi
 
 
 -- mueve el robot con el ninno cargado buscando el corral mas cercano para luego valorar el mejor 
--- lugar donde dejarlo. Trata de moverse con dos pasos siempre que pueda.
+-- lugar donde dejarlo. Trata de moverse con dos pasos siempre que pueda
 moveRobotPlay :: Object -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 moveRobotPlay robot@(Object name (Location x y)) path childList freePos dirtyList playpen robotList gen =
         let twoSteps = (length path) >= 2

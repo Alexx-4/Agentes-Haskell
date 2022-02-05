@@ -63,11 +63,11 @@ nannyRobot robot@(Object name (Location x y)) childList freePos dirtyList plaype
                 playplenInPosUp = canRobotMove (x-1) y freePos dirtyList playpen childList robotList "" 
 
 
--- el robot random se mueve aleatoriamente en el tablero, si no esta cargando un ninno y
--- encuentra una casilla sucia, la limpia.
+-- el robot random se mueve aleatoriamente en el tablero, si encuentra una casilla sucia, 
+-- y no esta cargando un ninno, entonces la limpia.
 randomRobot :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 randomRobot robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen n m
-        | elem (x,y) (getPosObjects dirtyList) = 
+        | elem (x,y) (getPosObjects dirtyList) && state == "free" = 
                 let newDirtyList = delete (Object "Dirty" (Location x y)) dirtyList
                 in (childList, newDirtyList, robotList, freePos, gen)
 
@@ -84,7 +84,7 @@ randomRobot robot@(Object name (Location x y)) childList freePos dirtyList playp
                                 newx = x + dx
                                 newy = y + dy
 
-                                newChildList =  if (getRobotState robot) == "charging"
+                                newChildList =  if state == "charging"
                                                 then let child = getObj (x,y) childList
                                                      in moveChild child dx dy childList
                                                 else childList
@@ -93,7 +93,8 @@ randomRobot robot@(Object name (Location x y)) childList freePos dirtyList playp
                                 
                         in (newChildList, dirtyList, newRobotList, newFreePos, newGen) 
 
-                where   a i = x + dirx!!i
+                where   state = getRobotState robot
+                        a i = x + dirx!!i
                         b i = y + diry!!i
 
 
@@ -149,7 +150,7 @@ cleanerRobot robot@(Object name (Location x y)) childList freePos dirtyList play
 -- en caso contrario se pone a buscar ninnos para meterlos en el corral.
 balancedRobot :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[(Int,Int)],StdGen)
 balancedRobot robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen n m
-        | (dirtPercent dirtyList freePos) <= 70 = 
+        | (cleanPercent dirtyList freePos) <= 70 = 
                 cleanerRobot robot childList freePos dirtyList playpen robotList gen n m
         
         | otherwise = 

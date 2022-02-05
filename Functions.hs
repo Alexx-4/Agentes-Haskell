@@ -2,7 +2,7 @@ module Functions
 (
     mainPrintEnvironment,
     getFreePosAsObject,
-    dirtPercent,
+    cleanPercent,
     indexOf
 ) 
 where
@@ -14,8 +14,8 @@ import Data.List
 
 
 -- funcion que calcula el porcentaje de casillas que no estan sucias del ambiente
-dirtPercent :: [Object] -> [(Int,Int)] -> Int
-dirtPercent dirtyList freePos = div (free * 100) (dirty+free) 
+cleanPercent :: [Object] -> [(Int,Int)] -> Int
+cleanPercent dirtyList freePos = div (free * 100) (dirty+free) 
                                 where dirty = length dirtyList
                                       free = length freePos
 

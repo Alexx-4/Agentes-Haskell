@@ -87,7 +87,8 @@ createEnvironment n m agNumber childNumber dirtyNumber obstNumber t robotType si
 simulation :: [Object] -> [Object] -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> Int -> Int -> Int -> StdGen -> Int -> Int ->
     (Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [Object] -> StdGen -> Int -> Int -> ([Object],[Object],[Object],[(Int,Int)],StdGen)) -> Int -> Int -> Int -> Int -> [Int] -> [Int] -> String -> IO()
 simulation childList robotList dirtyList freePos obstList playpen t turn iRobot gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
-    | (dirtPercent dirtyList freePos) < 60 && turn > 5 =  do 
+    -- derrota
+    | (cleanPercent dirtyList freePos) < 60 && turn > 5 =  do 
                 putStrLn("Fail")
                 putStrLn("Robots couldnt keep environment clean")
                 putStrLn("Turns: " ++ (show turn))
@@ -95,12 +96,14 @@ simulation childList robotList dirtyList freePos obstList playpen t turn iRobot 
                 printAt
                 createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [0]) (allTurns ++ [turn]) debugMode
     
+    -- victoria
     | turn > 150 = do
-                putStrLn("Tie")
+                putStrLn("Success")
                 putStrLn("Number of turns exceeded")
                 printAt
-                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim results (allTurns ++ [turn]) debugMode
+                createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [1]) (allTurns ++ [turn]) debugMode
     
+    -- victoria
     | ( let inPlaypen = [child | child <- (getPosObjects childList), elem child (getPosObjects playpen)]
             inRobot = [child | child <- (getPosObjects childList), elem child (getPosObjects robotList)]
             inBoth = [child | child <- (getPosObjects childList), elem child (getPosObjects playpen),
@@ -114,7 +117,7 @@ simulation childList robotList dirtyList freePos obstList playpen t turn iRobot 
                 printAt
                 createEnvironment n m (length robotList) (length childList) dirtyNumber (length obstList) t robotType (sim+1) totalSim (results ++ [1]) (allTurns ++ [turn]) debugMode
 
-
+    -- cambio de turno (puede haber cambio de ambiente)
     | iRobot == (length robotList) = 
             if (mod turn t) == 0
             then let  (newChildList, newDirtyList, newObstList, newFreePos) =
@@ -129,6 +132,7 @@ simulation childList robotList dirtyList freePos obstList playpen t turn iRobot 
 
             else simulation childList robotList dirtyList freePos obstList playpen t (turn + 1) 0 gen n m actionRobot robotType dirtyNumber sim totalSim results allTurns debugMode
 
+    -- ejecucion de una accion de agente
     | otherwise = 
         let robot = robotList !! iRobot
             (newChildList, newDirtyList, newRobotList, newFreePos, newGen) = 

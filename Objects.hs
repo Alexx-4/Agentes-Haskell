@@ -14,7 +14,8 @@ module Objects
     dirx,
     diry,
     isValidPos,
-    rand
+    rand,
+    locateObjects
 
 ) 
 where
@@ -29,19 +30,6 @@ dirx = [1, 0, -1,  0]
 
 diry :: [Int]
 diry = [0, 1,  0, -1]
-
-
--- dada una posicion x,y del ambiente devuelve si esta dentro de los limites de este
-isValidPos :: Int -> Int -> Int -> Int -> Bool
-isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
-
-
--- devuelve una lista de n numeros aleatorios distintos en el
--- intervalo [min,max]
-rand :: Int -> (Int, Int) -> StdGen -> [Int]
-rand n (min, max) gen = if n > (max - min + 1) 
-                        then error "full environment"
-                        else take n $ nub $ randomRs (min, max) gen :: [Int]
 
 
 -- cada objeto esta identificado por su nombre (ya sea robot, ninno, suciedad, etc),
@@ -70,6 +58,19 @@ instance Ord Object where
     (>=) o1 o2 = not (o1 < o2)
 
 
+-- dada una posicion x,y del ambiente devuelve si esta dentro de los limites de este
+isValidPos :: Int -> Int -> Int -> Int -> Bool
+isValidPos x y n m = if x >= 0 && x < n && y >= 0 && y < m then True else False
+
+
+-- devuelve una lista de n numeros aleatorios distintos en el
+-- intervalo [min,max]
+rand :: Int -> (Int, Int) -> StdGen -> [Int]
+rand n (min, max) gen = if n > (max - min + 1) 
+                        then error "full environment"
+                        else take n $ nub $ randomRs (min, max) gen :: [Int]
+
+
 -- crea un objeto dados su nombre y ubicacion
 createObject :: String -> (Int,Int) -> Object
 createObject name (x,y) = Object name $ Location x y
@@ -79,6 +80,14 @@ createObject name (x,y) = Object name $ Location x y
 -- devuelve el objeto desplazado en la direccion d
 moveObject :: Object -> Int -> Int -> Object
 moveObject (Object name (Location x y)) d1 d2 = Object name $ Location (x + d1) (y + d2)
+
+
+-- devuelve una lista con n objetos ubicados en posiciones aleatorias. Recibe el nombre 
+-- del objeto, la cantidad de objetos a ubicar y la lista con las posiciones que quedan vacias (emptyPos), 
+-- ademas del generador que utiliza el random
+locateObjects :: String -> Int -> [(Int,Int)] -> StdGen -> [Object]
+locateObjects name n emptyPos gen = let indexes = rand n (0, ((length emptyPos) - 1)) gen
+                                    in  [createObject name (emptyPos !! i) | i <- indexes]
 
 
 -- recibe una lista de objetos y deluelve otra lista con todas las posiciones que
@@ -122,14 +131,13 @@ createPlaypen child n m g1 g2 =
                                     (_,newGen) = randomR (0,3) gen :: (Int,StdGen)
                         
                                 in  dfs (adj ++ xs) newVisited (c+1) child n m newGen
-                                    
-                        
+                    
                                 where   a i = x + dirx!!i
                                         b i = y + diry!!i
 
 
 
--- dado un objeto que representa un ninno, una direccion, modifica la lista 
+-- dado un objeto que representa un ninno y una direccion, modifica la lista 
 -- de ninnos, cambiando la posicion del objeto en la direccion indicada
 moveChild :: Object -> Int -> Int -> [Object] -> [Object]
 moveChild child dx dy [] = []
