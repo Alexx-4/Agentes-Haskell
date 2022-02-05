@@ -163,5 +163,5 @@ teamworkRobot :: Object -> [Object] -> [(Int,Int)] -> [Object] -> [Object] -> [O
 teamworkRobot robot@(Object name (Location x y)) childList freePos dirtyList playpen robotList gen n m = 
         let middle = div (length robotList) 2
             i = indexOf robot robotList
-        in if i <= middle then nannyRobot robot childList freePos dirtyList playpen robotList gen n m
+        in if i < middle then nannyRobot robot childList freePos dirtyList playpen robotList gen n m
                           else cleanerRobot robot childList freePos dirtyList playpen robotList gen n m
