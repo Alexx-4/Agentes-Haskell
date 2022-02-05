@@ -4,9 +4,5 @@ Implementacion de agentes en Haskell para las asignaturas Programacion Declarati
 Para ejecutar la app, en el directorio del proyecto ejecute:
        
     stack ghci
-    
-    
     :l Main.hs
-    
-    
     main
